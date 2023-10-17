@@ -67,43 +67,68 @@ Shader "Hidden/FluidRendererShader"
                 return float2(dstToBox, dstInsideBox);
             }
             
+            // Container Properties
+            float3 BoundsMin;
+            float3 BoundsMax;
+            
             // Fluid Properties
             float3 ColorReflection;
             float DensityMultiplier;
             
-            float sampleDensity(float3 worldPos) {
+            float sampleDensity(float3 samplePoint) {
                 return 1 * DensityMultiplier;
             }
             
             // Renderer Properties
             int inScatteringSteps;
+            int opticalDepthSteps;
             
+            // Uses a numerical integral to calculate the optical depth at the sample point along the given ray
+            float opticalDepth(float3 samplePoint, float3 rayDir) {
+                float2 hitInfo = rayBoxDst(BoundsMin, BoundsMax, samplePoint, rayDir);
+                float dstToFluid = hitInfo.x;
+                float dstInsideFluid = hitInfo.y;
+                
+                float dstTravelled = 0;
+                float stepSize = dstInsideFluid / opticalDepthSteps;
+                
+                float opticalDepth = 0;
+                for (int i = 0; i < inScatteringSteps; i++) {
+                    dstTravelled += stepSize;
+                    float3 samplePoint = samplePoint + rayDir * (dstToFluid + dstTravelled);
+                    opticalDepth += sampleDensity(samplePoint) * stepSize;
+                }
+                return opticalDepth;
+            }
+            
+            // Used to calculate the light transmitted along the given ray
+            // originalCol is the evironment color at the "end" of the ray
             float3 calculateLight(float3 originalCol, float3 rayOrigin, float3 rayDir, float dstToFluid, float dstInsideFluid) {
                 if (dstInsideFluid <= 0) return originalCol;
                 
                 float dstTravelled = 0;
                 float stepSize = dstInsideFluid / inScatteringSteps;
                 
-                float3 transmittance = 1;
+                float opticalDepth = 0;
                 float3 inScatteredLight = 0;
                 for (int i = 0; i < inScatteringSteps; i++) {
                     dstTravelled += stepSize;
                     float3 samplePoint = rayOrigin + rayDir * (dstToFluid + dstTravelled);
                     float densityAlongStep = sampleDensity(samplePoint) * stepSize;
                     
-                    transmittance *= exp(-densityAlongStep) * pow(ColorReflection, densityAlongStep);
+                    opticalDepth += densityAlongStep;
+                    // Eventually gonna compute inScatteredLight here
                 }
                 
-                return inScatteredLight + originalCol * transmittance;
+                // Beer-Lambert Law. 1 - ColorReflection gives us the attenuation
+                float3 transmittance = exp(-opticalDepth * (1 - ColorReflection));
+                
+                return originalCol * transmittance;
             }
 
             
             sampler2D _MainTex;
             sampler2D _CameraDepthTexture;
-            
-            // Container Properties
-            float3 BoundsMin;
-            float3 BoundsMax;
 
             float4 frag (v2f i) : SV_Target
             {
