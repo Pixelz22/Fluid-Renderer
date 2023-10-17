@@ -16,6 +16,7 @@ Shader "Hidden/FluidRendererShader"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
+            #include "UnityLightingCommon.cginc"
 
             struct appdata
             {
@@ -67,6 +68,18 @@ Shader "Hidden/FluidRendererShader"
                 return float2(dstToBox, dstInsideBox);
             }
             
+            // Returns the direction to the World Space Light
+            // Uses a bit of logic to differentiate between directional and point lights.
+            // Thanks to https://forum.unity.com/threads/_worldspacelightpos0-how-it-works.435673/
+            float3 dirToLight(float3 pos) {
+                bool isDirectionalLight = _WorldSpaceLightPos0.w == 0;
+                float3 lightDir = _WorldSpaceLightPos0.xyz;
+                // If _WorldSpaceLightPos.w is 0, then it actually already gives us the direction towards the light.
+                // so we don't have to do this extra step
+                if (!isDirectionalLight) lightDir = normalize(lightDir - pos);
+                return lightDir;
+            }
+            
             // Container Properties
             float3 BoundsMin;
             float3 BoundsMax;
@@ -109,21 +122,22 @@ Shader "Hidden/FluidRendererShader"
                 float dstTravelled = 0;
                 float stepSize = dstInsideFluid / inScatteringSteps;
                 
-                float opticalDepth = 0;
+                float3 transmittance = 1;
                 float3 inScatteredLight = 0;
                 for (int i = 0; i < inScatteringSteps; i++) {
                     dstTravelled += stepSize;
                     float3 samplePoint = rayOrigin + rayDir * (dstToFluid + dstTravelled);
                     float densityAlongStep = sampleDensity(samplePoint) * stepSize;
                     
-                    opticalDepth += densityAlongStep;
-                    // Eventually gonna compute inScatteredLight here
+                    // Beer-Lambert Law. 1 - ColorReflection gives us the attenuation
+                    transmittance *= exp(-densityAlongStep * (1 - ColorReflection));
+                    
+                    // Calculate In-Scattered Light
+                    float depthToLight = opticalDepth(samplePoint, dirToLight(samplePoint));
+                    inScatteredLight += _LightColor0 * exp(-depthToLight * (1 - ColorReflection));
                 }
                 
-                // Beer-Lambert Law. 1 - ColorReflection gives us the attenuation
-                float3 transmittance = exp(-opticalDepth * (1 - ColorReflection));
-                
-                return originalCol * transmittance;
+                return inScatteredLight + originalCol * transmittance;
             }
 
             
@@ -135,6 +149,7 @@ Shader "Hidden/FluidRendererShader"
                 float4 col = tex2D(_MainTex, i.uv);
                 float3 rayOrigin = _WorldSpaceCameraPos;
                 float3 rayDir = normalize(i.viewVector);
+                
                 
                 float nonLinearDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv);
                 float depth = LinearEyeDepth(nonLinearDepth) * length(i.viewVector);

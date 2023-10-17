@@ -14,6 +14,7 @@ public class FluidRenderCamera : MonoBehaviour
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
+        if (fluidRendererMat == null) fluidRendererMat = new Material(fluidRendererShader);
         InitializeShader();
 
         Graphics.Blit(source, destination, fluidRendererMat);
@@ -21,7 +22,6 @@ public class FluidRenderCamera : MonoBehaviour
 
     private void InitializeShader()
     {
-        if (fluidRendererMat == null) fluidRendererMat = new Material(fluidRendererShader);
 
         // Set Renderer Properties
         fluidRendererMat.SetInteger("inScatteringSteps", numSteps);
