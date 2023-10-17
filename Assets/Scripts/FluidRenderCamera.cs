@@ -6,7 +6,8 @@ using UnityEngine;
 public class FluidRenderCamera : MonoBehaviour
 {
     public Shader fluidRendererShader;
-    public Transform container;
+    public FluidData fluidData;
+    public int numSteps = 1;
 
 
     private Material fluidRendererMat;
@@ -22,8 +23,15 @@ public class FluidRenderCamera : MonoBehaviour
     {
         if (fluidRendererMat == null) fluidRendererMat = new Material(fluidRendererShader);
 
+        // Set Renderer Properties
+        fluidRendererMat.SetInteger("inScatteringSteps", numSteps);
+
         // Set container bounds
-        fluidRendererMat.SetVector("BoundsMin", container.position - container.localScale / 2);
-        fluidRendererMat.SetVector("BoundsMax", container.position + container.localScale / 2);
+        fluidRendererMat.SetVector("BoundsMin", fluidData.transform.position - fluidData.transform.localScale / 2);
+        fluidRendererMat.SetVector("BoundsMax", fluidData.transform.position + fluidData.transform.localScale / 2);
+
+        // Set fluid properties
+        fluidRendererMat.SetVector("ColorReflection", fluidData.colorReflection);
+        fluidRendererMat.SetFloat("DensityMultiplier", fluidData.densityMultiplier);
     }
 }

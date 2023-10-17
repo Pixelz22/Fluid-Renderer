@@ -65,18 +65,43 @@ Shader "Hidden/FluidRendererShader"
                 float dstToBox = max(0, dstA);
                 float dstInsideBox = max(0, dstB - dstToBox);
                 return float2(dstToBox, dstInsideBox);
-
             }
             
-            float3 calculateLight(float3 originalCol, float3 rayOrigin, float3 rayDir, float dstToContainer, float dstInsideContainer) {
-                if (dstInsideContainer <= 0) return originalCol;
-                return originalCol * exp(-dstInsideContainer);
+            // Fluid Properties
+            float3 ColorReflection;
+            float DensityMultiplier;
+            
+            float sampleDensity(float3 worldPos) {
+                return 1 * DensityMultiplier;
+            }
+            
+            // Renderer Properties
+            int inScatteringSteps;
+            
+            float3 calculateLight(float3 originalCol, float3 rayOrigin, float3 rayDir, float dstToFluid, float dstInsideFluid) {
+                if (dstInsideFluid <= 0) return originalCol;
+                
+                float dstTravelled = 0;
+                float stepSize = dstInsideFluid / inScatteringSteps;
+                
+                float3 transmittance = 1;
+                float3 inScatteredLight = 0;
+                for (int i = 0; i < inScatteringSteps; i++) {
+                    dstTravelled += stepSize;
+                    float3 samplePoint = rayOrigin + rayDir * (dstToFluid + dstTravelled);
+                    float densityAlongStep = sampleDensity(samplePoint) * stepSize;
+                    
+                    transmittance *= exp(-densityAlongStep) * pow(ColorReflection, densityAlongStep);
+                }
+                
+                return inScatteredLight + originalCol * transmittance;
             }
 
             
             sampler2D _MainTex;
             sampler2D _CameraDepthTexture;
             
+            // Container Properties
             float3 BoundsMin;
             float3 BoundsMax;
 
