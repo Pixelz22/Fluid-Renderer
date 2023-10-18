@@ -87,6 +87,7 @@ Shader "Hidden/FluidRendererShader"
             // Fluid Properties
             float3 ColorReflection;
             float DensityMultiplier;
+            float4 phaseParams;
             
             float sampleDensity(float3 samplePoint) {
                 return 1 * DensityMultiplier;
@@ -118,32 +119,50 @@ Shader "Hidden/FluidRendererShader"
                 return opticalDepth;
             }
             
+            // Beer-Lampert law: Transmittance = e^(-opticalDepth * attenuation)
+            float3 beer(float opticalDepth, float3 attenuation) {
+                return exp(-opticalDepth * attenuation);
+            }
+            
+            // Henyey-Greenstein
+            float hg(float a, float g) {
+                float g2 = g*g;
+                return (1-g2) / (4*3.1415*pow(1+g2-2*g*(a), 1.5));
+            }
+            
+            // Used to weight the scattering of light based on the cosine of the angle between the light
+            float phase(float cosAngle) {
+                float blend = .5;
+                float hgBlend = hg(cosAngle,phaseParams.x) * (1-blend) + hg(cosAngle,-phaseParams.y) * blend;
+                return phaseParams.z + hgBlend*phaseParams.w;
+            }
+            
             // Used to calculate the light transmitted along the given ray
             // originalCol is the evironment color at the "end" of the ray
             float3 calculateLight(float3 originalCol, float3 rayOrigin, float3 rayDir, float dstToFluid, float dstInsideFluid) {
                 if (dstInsideFluid <= 0) return originalCol;
                 
-                float dstTravelled = 0;
+                float3 inScatterPoint = rayOrigin + rayDir * dstToFluid;
                 float stepSize = dstInsideFluid / inScatteringSteps;
                 
                 float3 transmittance = 1;
                 float3 inScatteredLight = 0;
                 for (int i = 0; i < inScatteringSteps; i++) {
-                    dstTravelled += stepSize;
-                    float3 samplePoint = rayOrigin + rayDir * (dstToFluid + dstTravelled);
-                    float localDensity = sampleDensity(samplePoint);
+                    inScatterPoint += rayDir * stepSize;
+                    float localDensity = sampleDensity(inScatterPoint);
                     
                     // Beer-Lambert Law. 1 - ColorReflection gives us the attenuation
-                    transmittance *= exp(-localDensity * stepSize * (1 - ColorReflection));
+                    transmittance *= beer(localDensity * stepSize, 1 - ColorReflection);
                     
                     // Calculate In-Scattered Light
-                    float3 lightDir = dirToLight(samplePoint);
+                    float3 lightDir = dirToLight(inScatterPoint);
                     const float epsilon = 0.0001; // offset sample point by small amount to account for noise along edge of rayBox intersection function
-                    float depthToLight = getOpticalDepth(samplePoint - (epsilon * lightDir), lightDir);
+                    float depthToLight = getOpticalDepth(inScatterPoint - (epsilon * lightDir), lightDir);
+                    float cosAngle = dot(rayDir, lightDir);
+                    float phaseVal = phase(cosAngle);
                     
-                    // inScatteredLight += transmittanceAlongLightRay * transmittanceAlongViewRay * localDensity * stepSize
-                    // Should probably account for angle of incoming light, for now we approximate by dividing everything by two.
-                    inScatteredLight += exp(-depthToLight * (1 - ColorReflection)) * transmittance * localDensity * stepSize / 2;
+                    // inScatteredLight += transmittanceAlongLightRay * transmittanceAlongViewRay * localDensity * phaseVal * stepSize
+                    inScatteredLight += beer(depthToLight, 1 - ColorReflection) * transmittance * localDensity * phaseVal * stepSize;
                 }
                 
                 // Total view ray transmittance is used to blend in the original color
