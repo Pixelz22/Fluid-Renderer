@@ -10,16 +10,6 @@ public class FluidRenderCamera : MonoBehaviour
     public int numInScatteringSteps = 10;
     public int numOpticalDepthSteps = 5;
 
-    [Range(0, 1)]
-    public float forwardScattering = .83f;
-    [Range(0, 1)]
-    public float backScattering = .3f;
-    [Range(0, 1)]
-    public float baseBrightness = .8f;
-    [Range(0, 1)]
-    public float phaseFactor = .15f;
-
-
 
     private Material fluidRendererMat;
 
@@ -45,6 +35,6 @@ public class FluidRenderCamera : MonoBehaviour
         // Set fluid properties
         fluidRendererMat.SetVector("ColorReflection", fluidData.colorReflection);
         fluidRendererMat.SetFloat("DensityMultiplier", fluidData.densityMultiplier);
-        fluidRendererMat.SetVector("phaseParams", new Vector4(forwardScattering, backScattering, baseBrightness, phaseFactor));
+        fluidRendererMat.SetVector("phaseParams", fluidData.getPhaseParams());
     }
 }

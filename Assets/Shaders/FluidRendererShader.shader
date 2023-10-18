@@ -111,7 +111,7 @@ Shader "Hidden/FluidRendererShader"
                 float stepSize = dstInsideFluid / opticalDepthSteps;
                 
                 float opticalDepth = 0;
-                for (int i = 0; i < inScatteringSteps; i++) {
+                for (int i = 0; i < opticalDepthSteps; i++) {
                     dstTravelled += stepSize;
                     float3 samplePoint = samplePoint + rayDir * (dstToFluid + dstTravelled);
                     opticalDepth += sampleDensity(samplePoint) * stepSize;

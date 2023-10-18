@@ -261,8 +261,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 400d83243302910479e34783fd476df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorReflection: {r: 0.95849055, g: 0.9764151, b: 1, a: 1}
   densityMultiplier: 1.43
+  colorReflection: {r: 0.92075473, g: 0.9658729, b: 1, a: 1}
+  forwardScattering: 0.83
+  backScattering: 0.3
+  baseBrightness: 0.01
+  phaseFactor: 0.15
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,11 +367,7 @@ MonoBehaviour:
   fluidRendererShader: {fileID: 4800000, guid: 5e459ceb2aeebb24997251be364778b4, type: 3}
   fluidData: {fileID: 741692886}
   numInScatteringSteps: 10
-  numOpticalDepthSteps: 5
-  forwardScattering: 0.83
-  backScattering: 0.3
-  baseBrightness: 0.03
-  phaseFactor: 0.15
+  numOpticalDepthSteps: 10
 --- !u!1 &1461495978
 GameObject:
   m_ObjectHideFlags: 0
