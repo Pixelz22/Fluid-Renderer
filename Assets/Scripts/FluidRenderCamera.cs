@@ -7,7 +7,9 @@ public class FluidRenderCamera : MonoBehaviour
 {
     public Shader fluidRendererShader;
     public FluidData fluidData;
-    public int numSteps = 1;
+    public int numInScatteringSteps = 1;
+    public int numOpticalDepthSteps = 1;
+
 
 
     private Material fluidRendererMat;
@@ -24,7 +26,8 @@ public class FluidRenderCamera : MonoBehaviour
     {
 
         // Set Renderer Properties
-        fluidRendererMat.SetInteger("inScatteringSteps", numSteps);
+        fluidRendererMat.SetInteger("inScatteringSteps", numInScatteringSteps);
+        fluidRendererMat.SetInteger("opticalDepthSteps", numOpticalDepthSteps);
 
         // Set container bounds
         fluidRendererMat.SetVector("BoundsMin", fluidData.transform.position - fluidData.transform.localScale / 2);

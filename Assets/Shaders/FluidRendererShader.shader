@@ -97,10 +97,14 @@ Shader "Hidden/FluidRendererShader"
             int opticalDepthSteps;
             
             // Uses a numerical integral to calculate the optical depth at the sample point along the given ray
-            float opticalDepth(float3 samplePoint, float3 rayDir) {
+            // For some reason, the number of sample points effects the output, even when using a constant density.
+            // This should not happen. NEED TO FIX!!
+            float getOpticalDepth(float3 samplePoint, float3 rayDir) {
                 float2 hitInfo = rayBoxDst(BoundsMin, BoundsMax, samplePoint, rayDir);
                 float dstToFluid = hitInfo.x;
                 float dstInsideFluid = hitInfo.y;
+                
+                if (dstInsideFluid <= 0) return 0;
                 
                 float dstTravelled = 0;
                 float stepSize = dstInsideFluid / opticalDepthSteps;
@@ -127,17 +131,24 @@ Shader "Hidden/FluidRendererShader"
                 for (int i = 0; i < inScatteringSteps; i++) {
                     dstTravelled += stepSize;
                     float3 samplePoint = rayOrigin + rayDir * (dstToFluid + dstTravelled);
-                    float densityAlongStep = sampleDensity(samplePoint) * stepSize;
+                    float localDensity = sampleDensity(samplePoint);
                     
                     // Beer-Lambert Law. 1 - ColorReflection gives us the attenuation
-                    transmittance *= exp(-densityAlongStep * (1 - ColorReflection));
+                    transmittance *= exp(-localDensity * stepSize * (1 - ColorReflection));
                     
                     // Calculate In-Scattered Light
-                    float depthToLight = opticalDepth(samplePoint, dirToLight(samplePoint));
-                    inScatteredLight += _LightColor0 * exp(-depthToLight * (1 - ColorReflection));
+                    float3 lightDir = dirToLight(samplePoint);
+                    const float epsilon = 0.0001; // offset sample point by small amount to account for noise along edge of rayBox intersection function
+                    float depthToLight = getOpticalDepth(samplePoint - (epsilon * lightDir), lightDir);
+                    
+                    // inScatteredLight += transmittanceAlongLightRay * transmittanceAlongViewRay * localDensity * stepSize
+                    // Should probably account for angle of incoming light, for now we approximate by dividing everything by two.
+                    inScatteredLight += exp(-depthToLight * (1 - ColorReflection)) * transmittance * localDensity * stepSize / 2;
                 }
                 
-                return inScatteredLight + originalCol * transmittance;
+                // Total view ray transmittance is used to blend in the original color
+                // Use the universal light source color to tint the inScatteredLight
+                return _LightColor0 * inScatteredLight + originalCol * transmittance;
             }
 
             
