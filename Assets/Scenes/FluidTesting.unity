@@ -261,11 +261,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 400d83243302910479e34783fd476df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  densityMultiplier: 1.43
-  colorReflection: {r: 0.92075473, g: 0.9658729, b: 1, a: 1}
+  densityMultiplier: 2
+  colorReflection: {r: 0.93018866, g: 0.96723145, b: 1, a: 1}
   forwardScattering: 0.83
   backScattering: 0.3
-  baseBrightness: 0.01
+  baseBrightness: 0.013
   phaseFactor: 0.15
 --- !u!1 &963194225
 GameObject:

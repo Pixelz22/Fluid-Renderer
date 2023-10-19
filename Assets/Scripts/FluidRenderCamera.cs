@@ -13,6 +13,11 @@ public class FluidRenderCamera : MonoBehaviour
 
     private Material fluidRendererMat;
 
+    private void Awake()
+    {
+        Camera.main.depthTextureMode = DepthTextureMode.Depth;
+    }
+
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
         if (fluidRendererMat == null) fluidRendererMat = new Material(fluidRendererShader);
