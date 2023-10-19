@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.4482453, g: 0.49827206, b: 0.57558167, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -209,14 +209,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.38268274, y: -0, z: -0, w: 0.9238798}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1 &741692884
 GameObject:
   m_ObjectHideFlags: 0
@@ -243,7 +243,7 @@ Transform:
   m_GameObject: {fileID: 741692884}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.86, z: -5.15}
-  m_LocalScale: {x: 4.6709, y: 2.2717, z: 3.392036}
+  m_LocalScale: {x: 28.12489, y: 2.2717, z: 3.392036}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -261,11 +261,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 400d83243302910479e34783fd476df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  densityMultiplier: 2
-  colorReflection: {r: 0.93018866, g: 0.96723145, b: 1, a: 1}
-  forwardScattering: 0.83
-  backScattering: 0.3
-  baseBrightness: 0.013
+  densityMultiplier: 0.25
+  colorReflection: {r: 0.065112144, g: 0.18101399, b: 0.2924528, a: 1}
+  forwardScattering: 0.825
+  backScattering: 0.825
+  baseBrightness: 0.838
   phaseFactor: 0.15
 --- !u!1 &963194225
 GameObject:
@@ -368,6 +368,9 @@ MonoBehaviour:
   fluidData: {fileID: 741692886}
   numInScatteringSteps: 10
   numOpticalDepthSteps: 10
+  wavelengths: {x: 750, y: 550, z: 480}
+  scatteringType: 1
+  scatteringStrength: 3.88
 --- !u!1 &1461495978
 GameObject:
   m_ObjectHideFlags: 0

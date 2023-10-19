@@ -119,9 +119,24 @@ Shader "Hidden/FluidRendererShader"
                 return opticalDepth;
             }
             
-            // Beer-Lampert law: Transmittance = e^(-opticalDepth * attenuation)
+            float3 wavelengths;
+            float scatteringStrength;
+            
+            // Helper function to get the scattering coefficients for different types of scattering
+            float3 getScatteringCoefficients(int scatteringType) {
+                switch (scatteringType) {
+                case 1: // Rayleigh scattering
+                    return pow(400 / wavelengths, 4) * scatteringStrength;
+                default: // Mie scattering
+                    return 1;
+                }
+            }
+            
+            int scatteringType;
+            
+            // Beer-Lampert law: Transmittance = e^(-opticalDepth * attenuation * scatteringCoefficients)
             float3 beer(float opticalDepth, float3 attenuation) {
-                return exp(-opticalDepth * attenuation);
+                return exp(-opticalDepth * attenuation * getScatteringCoefficients(scatteringType));
             }
             
             // Henyey-Greenstein
@@ -162,7 +177,7 @@ Shader "Hidden/FluidRendererShader"
                     float phaseVal = phase(cosAngle);
                     
                     // inScatteredLight += transmittanceAlongLightRay * transmittanceAlongViewRay * localDensity * phaseVal * stepSize
-                    inScatteredLight += beer(depthToLight, 1 - ColorReflection) * transmittance * localDensity * phaseVal * stepSize;
+                    inScatteredLight += beer(depthToLight, 1 - ColorReflection) * transmittance * localDensity * getScatteringCoefficients(scatteringType) * phaseVal * stepSize;
                 }
                 
                 // Total view ray transmittance is used to blend in the original color

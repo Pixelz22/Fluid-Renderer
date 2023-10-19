@@ -9,6 +9,9 @@ public class FluidRenderCamera : MonoBehaviour
     public FluidData fluidData;
     public int numInScatteringSteps = 10;
     public int numOpticalDepthSteps = 5;
+    public Vector3 wavelengths = new Vector3(700, 530, 440);
+    public int scatteringType = 0;
+    public float scatteringStrength = 1;
 
 
     private Material fluidRendererMat;
@@ -32,6 +35,7 @@ public class FluidRenderCamera : MonoBehaviour
         // Set Renderer Properties
         fluidRendererMat.SetInteger("inScatteringSteps", numInScatteringSteps);
         fluidRendererMat.SetInteger("opticalDepthSteps", numOpticalDepthSteps);
+        fluidRendererMat.SetVector("wavelengths", wavelengths);
 
         // Set container bounds
         fluidRendererMat.SetVector("BoundsMin", fluidData.transform.position - fluidData.transform.localScale / 2);
@@ -41,5 +45,7 @@ public class FluidRenderCamera : MonoBehaviour
         fluidRendererMat.SetVector("ColorReflection", fluidData.colorReflection);
         fluidRendererMat.SetFloat("DensityMultiplier", fluidData.densityMultiplier);
         fluidRendererMat.SetVector("phaseParams", fluidData.getPhaseParams());
+        fluidRendererMat.SetInteger("scatteringType", scatteringType);
+        fluidRendererMat.SetFloat("scatteringStrength", scatteringStrength);
     }
 }
