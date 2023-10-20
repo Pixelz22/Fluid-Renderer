@@ -262,10 +262,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   densityMultiplier: 0.25
-  colorReflection: {r: 0.065112144, g: 0.18101399, b: 0.2924528, a: 1}
-  forwardScattering: 0.825
-  backScattering: 0.825
-  baseBrightness: 0.838
+  colorReflection: {r: 0.71320754, g: 0.85660374, b: 1, a: 1}
+  forwardScattering: 0.959
+  backScattering: 0.35
+  baseBrightness: 0.077
   phaseFactor: 0.15
 --- !u!1 &963194225
 GameObject:
@@ -369,7 +369,7 @@ MonoBehaviour:
   numInScatteringSteps: 10
   numOpticalDepthSteps: 10
   wavelengths: {x: 750, y: 550, z: 480}
-  scatteringType: 1
+  scatteringType: 0
   scatteringStrength: 3.88
 --- !u!1 &1461495978
 GameObject:
