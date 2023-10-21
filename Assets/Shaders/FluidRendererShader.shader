@@ -182,7 +182,13 @@ Shader "Hidden/FluidRendererShader"
                 
                 // Total view ray transmittance is used to blend in the original color
                 // Use the universal light source color to tint the inScatteredLight
-                return _LightColor0 * inScatteredLight + originalCol * transmittance;
+                
+                // Temporarily trying to multiply the background color by the product of all the densities.
+                // Since density is constant right now, it's just sampled at one point, but if this works,
+                // the actual version would require doing a numerical integral-like approach.
+                // Ends up looking really bad for some density values, ok for others
+                // Still needs work I guess
+                return _LightColor0 * inScatteredLight * 0 + originalCol * transmittance * pow(sampleDensity(inScatterPoint) * phase(1), dstInsideFluid);
             }
 
             
