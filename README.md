@@ -12,7 +12,17 @@ The goal of this project is to create a physics-based screen-space rendering alg
 - Allow multiple fluids to be rendered at once
 - Research water/liquid renderers
 
-## Strategy and Implementation
+## Fluid Lighting Laws
+In an attempt to try to reconcile my increasing headache, I've started to lay out some rules that the equations must obey. I've pulled these from physics principles, my own observation/common sense, and thin air.
+
+<p align="center">
+<img src="README-Pics/fluidLightingEquation3.png" alt="Conservation of Energy as it applies to lighting" style="width: 40em;"/>
+<img src="README-Pics/fluidLightingEquation4.png" alt="Null-Fluid Principle" style="width: 40em;"/>
+</p>
+
+I plan to be adding to these as I think of them or find them from other sources. Hopefully this will help me get a grip on what exactly the equations should look like.
+
+## Fluid Lighting Equations
 
 So far I've based the rendering strategy off of this general fluid lighting equation that I've derived from my own personal logic and looking at other people's code. Is it a sloppy use of notation and vaguely defined in some places? Definitely (Though I hope to make it less so in the future). Is it physically accurate? Who knows! :D
 
@@ -20,6 +30,5 @@ So far I've based the rendering strategy off of this general fluid lighting equa
 <img src="README-Pics/fluidLightingEquation2.png" alt="Self-derived Fluid Lighting Equation" style="width: 40em;"/>
 </p>
 
-This might seem overly complicated, but it actually makes rendering the fluids easier in screen space. The background color can be taken directly from the screen for all view rays coming from the camera. This gets the majority of the work done. The other bit of the integral is referred to as the in-scattered light along the view ray. We can compute this with a numerical integral approach. Instead of sampling all rays at each in-scatter point, we'll just sample the ones going directly towards the light source, since those we'll have the most influence. Unfortunately, when the view ray goes directly into the sun, this ends up sampling the the same light twice, but it's almost unnoticable.
+So in order to get this to line up with the technique I'm currently using in the shader (because that seems to work well), I've been thinking about playing around with the scattering function. Mainly, that when the incoming direction and the outgoing direction are the same, the density should also keep some of that light from scattering forward, or something. Basically, when the density is 0, the light scattered should be 1 if we're looking in the direction of the light. Been thinking about using exponentials or lerping to do this.
 
-One thing interesting, according to the base form of the equation, moving across a fluid with 0 density would result in the incoming light being the background light multiplied by distance along the view ray. This looks absolutely horrible in the shader though, so you'd think that the actual equation needs to be divide by the total distance. But when I divide the in-scattered light by the distance, it looked really strange. So yea, I'm kinda puzzled about this.
