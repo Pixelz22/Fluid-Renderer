@@ -182,7 +182,7 @@ Shader "Hidden/FluidRendererShader"
                 
                 // Total view ray transmittance is used to blend in the original color
                 // Use the universal light source color to tint the inScatteredLight
-                return _LightColor0 * inScatteredLight * 0 + originalCol * transmittance;
+                return _LightColor0 * inScatteredLight + originalCol * transmittance;
             }
 
             

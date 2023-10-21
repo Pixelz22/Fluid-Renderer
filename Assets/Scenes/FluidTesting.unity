@@ -261,10 +261,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 400d83243302910479e34783fd476df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  densityMultiplier: 0.25
-  colorReflection: {r: 0.71320754, g: 0.85660374, b: 1, a: 1}
-  forwardScattering: 0.959
-  backScattering: 0.35
+  densityMultiplier: 6.32
+  colorReflection: {r: 0.84528303, g: 0.9215818, b: 1, a: 1}
+  forwardScattering: 0.745
+  backScattering: 0.056
   baseBrightness: 0.077
   phaseFactor: 0.15
 --- !u!1 &963194225
