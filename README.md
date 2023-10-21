@@ -31,4 +31,3 @@ So far I've based the rendering strategy off of this general fluid lighting equa
 </p>
 
 So in order to get this to line up with the technique I'm currently using in the shader (because that seems to work well), I've been thinking about playing around with the scattering function. Mainly, that when the incoming direction and the outgoing direction are the same, the density should also keep some of that light from scattering forward, or something. Basically, when the density is 0, the light scattered should be 1 if we're looking in the direction of the light. Been thinking about using exponentials or lerping to do this.
-
